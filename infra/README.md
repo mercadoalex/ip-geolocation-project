@@ -77,3 +77,6 @@ For details on the application itself, please refer to the documentation in the 
 ## Conclusion
 
 This README serves as a guide to set up the infrastructure for the IP Geolocation project. Ensure you follow the steps carefully and modify configurations as per your requirements. Happy coding!
+
+## Author
+Alejandro Mercado Peña
