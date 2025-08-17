@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IP Geolocation Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; width: 100%; }
+        body { font-family: Arial, sans-serif; }
+        #ipForm { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h2>IP Geolocation Visualizer</h2>
+    <form id="ipForm">
+        <input type="text" id="ipInput" placeholder="Enter IP address" />
+        <button type="submit">Locate</button>
+    </form>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on the world
+        var map = L.map('map').setView([20, 0], 2);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        // Handle form submission
+        document.getElementById('ipForm').onsubmit = async function(e) {
+            e.preventDefault();
+            var ip = document.getElementById('ipInput').value;
+
+            // Fetch geolocation data from backend on port 8080
+            const res = await fetch(`http://localhost:8080/geolocation/${ip}`);
+            const data = await res.json();
+
+            // Remove previous marker if any
+            if (window.lastMarker) map.removeLayer(window.lastMarker);
+
+            // Check if location data exists
+            if (data && data.Location && data.Location.Latitude && data.Location.Longitude) {
+                var lat = data.Location.Latitude;
+                var lon = data.Location.Longitude;
+                window.lastMarker = L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`IP: ${ip}<br>City: ${data.City.Names.en || 'Unknown'}<br>Country: ${data.Country.Names.en || 'Unknown'}`)
+                    .openPopup();
+                map.setView([lat, lon], 8);
+            } else {
+                alert("Location not found for this IP.");
+            }
+        };
+    </script>
+</body>
+</html>
